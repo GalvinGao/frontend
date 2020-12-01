@@ -1,30 +1,45 @@
 import Vue from 'vue'
+import VueAnalytics from 'vue-analytics'
 import App from './App.vue'
-import './registerServiceWorker'
 import router from './router'
+import config from './config'
 import store from './store'
 import vuetify from './plugins/vuetify'
+import * as Sentry from '@sentry/browser'
+import * as Integrations from '@sentry/integrations'
+import './assets/icon/wsicon.css'
 import i18n from './i18n'
 
 Vue.config.productionTip = false
 
-import * as Sentry from '@sentry/browser';
-import * as Integrations from "@sentry/integrations";
-
-const production = process.env.NODE_ENV === 'production';
+const production = process.env.NODE_ENV === 'production'
 
 if (production) {
   Sentry.init({
-    dsn: 'https://9636aaa824a744f98a619df0aaabba00@sentry.io/1536764',
-    integrations: [new Integrations.Vue({Vue, attachProps: true})],
+    dsn: 'https://335257229b13429eaa7f9af4faebcabe@sentry.imgal.vin/3',
+    integrations: [new Integrations.Vue({ Vue, attachProps: true })],
+    logErrors: true,
+    release: 'frontend@' + (config.version || 'unknown')
+  })
 
-    // NOTE: the config below (`logErrors`) controls whether the error will be logged
-    // to the console or not. Considering we are in production, logging
-    // errors to the console is not appropriate (since we are using Sentry).
-    // So I've turned this setting off. If necessary please re-enable it.
-    // More info at: https://docs.sentry.io/platforms/javascript/vue/
-    logErrors: false,
-    release: 'frontend-v2@' + (config.version || 'unknown'),
+  Vue.use(VueAnalytics, {
+    id: 'UA-69113723-14',
+    // customResourceURL: "https://www.google-analytics.com/analytics.js",
+    router,
+    debug: {
+      // enabled: process.env.NODE_ENV === "development",
+      enabled: false,
+      sendHitTask: production
+    },
+    batch: {
+      enabled: true, // enable/disable
+      amount: 5, // amount of events fired
+      delay: 2000 // delay in milliseconds
+    },
+    autoTracking: {
+      exception: true,
+      exceptionLogs: true
+    }
   });
 }
 
